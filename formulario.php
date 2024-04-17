@@ -1,8 +1,7 @@
 <?php
 
     if (isset($_POST['submit']))
-    {
-        
+    {        
         include_once('config.php');
 
         $nome = $_POST['nome'];
@@ -15,13 +14,35 @@
         $endereco = $_POST['endereco'];
         $senha = $_POST['senha'];
 
-        $result = mysqli_query($conexao, "INSERT INTO usuarios(nome,email,telefone,sexo,data_nasc,cidade,estado,endereco, senha)
-        VALUES ('$nome','$email','$telefone','$sexo','$data_nasc','$cidade', '$estado', '$endereco', '$senha')");
-        header ('Location = login.php');
+        //Aqui vamos verificar já existe e-mail no banco de dados:
+        $sql = "SELECT * FROM usuarios WHERE email = '$email'";
+        $verificaEmail = $conexao->query($sql);
 
+        if (mysqli_num_rows($verificaEmail) > 1){
+            echo " <script>
+                    alert('Já existe uma conta com esse e-mail');
+                    window.location.href = 'formulario.php';
+                    </script>";
+            exit; // Termina o script para garantir que o redirecionamento ocorra corretamente
+        }else{
+            $result = mysqli_query($conexao, "INSERT INTO usuarios(nome,email,telefone,sexo,data_nasc,cidade,estado,endereco, senha)
+            VALUES ('$nome','$email','$telefone','$sexo','$data_nasc','$cidade', '$estado', '$endereco', '$senha')");
+            
+            //O código abaixo mostra uma mensagem que o cadastro foi feito com sucesso
+            if ($result) {
+                // Se o cadastro for bem-sucedido, exibir mensagem e redirecionar usando JavaScript
+                echo " <script>
+                        alert('Cadastro realizado com sucesso!');
+                        window.location.href = 'login.php';
+                        </script>";
+                exit; // Termina o script para garantir que o redirecionamento ocorra corretamente
+            } else {
+                // Se houver algum erro no cadastro, exibir mensagem de erro
+                echo "Erro ao cadastrar usuário: " . mysqli_error($conexao);
+            }
+        }        
     }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
